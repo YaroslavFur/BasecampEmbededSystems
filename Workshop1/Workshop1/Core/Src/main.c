@@ -75,6 +75,7 @@ int main(void)
   /* USER CODE BEGIN Init */
 
   const int customDelay = 500;
+  const uint16_t roundPins[] = { GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15 };
 
   /* USER CODE END Init */
 
@@ -89,12 +90,47 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 
+  void blink()
+  {
+	  for (int firstRound = 0, secondRound = 2;;)
+	  {
+		  if (HAL_GPIO_ReadPin(GPIOD, roundPins[firstRound]) == GPIO_PIN_SET)
+			  HAL_GPIO_WritePin(GPIOD, roundPins[firstRound], GPIO_PIN_RESET);
+		  HAL_Delay(customDelay);
+
+		  if (firstRound < 3)
+			  firstRound++;
+		  else
+			  firstRound = 0;
+
+		  if (HAL_GPIO_ReadPin(GPIOD, roundPins[firstRound]) == GPIO_PIN_RESET)
+			  HAL_GPIO_WritePin(GPIOD, roundPins[firstRound], GPIO_PIN_SET);
+		  HAL_Delay(customDelay);
+
+
+		  if (HAL_GPIO_ReadPin(GPIOD, roundPins[secondRound]) == GPIO_PIN_SET)
+			  HAL_GPIO_WritePin(GPIOD, roundPins[secondRound], GPIO_PIN_RESET);
+		  HAL_Delay(customDelay);
+
+		  if (secondRound < 3)
+			  secondRound++;
+		  else
+			  secondRound = 0;
+
+		  if (HAL_GPIO_ReadPin(GPIOD, roundPins[secondRound]) == GPIO_PIN_RESET)
+			  HAL_GPIO_WritePin(GPIOD, roundPins[secondRound], GPIO_PIN_SET);
+		  HAL_Delay(customDelay);
+	  }
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  blink();
+
+	/*
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
 	HAL_Delay(customDelay);
 
@@ -142,7 +178,7 @@ int main(void)
 
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
 	HAL_Delay(customDelay);
-
+*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
