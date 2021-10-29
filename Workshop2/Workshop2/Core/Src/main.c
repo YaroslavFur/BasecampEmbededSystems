@@ -56,8 +56,158 @@ static void MX_GPIO_Init(void);
 /* USER CODE BEGIN 0 */
 
 int isOn = 1;
-int customDelay = 500;
 int scheme = 1;
+int customDelay = 500;
+const uint16_t roundPins[] = { GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15 };
+
+void setPin(uint16_t GPIO_Pin)
+{
+	if (HAL_GPIO_ReadPin(GPIOD, GPIO_Pin) == GPIO_PIN_RESET)
+		HAL_GPIO_WritePin(GPIOD, GPIO_Pin, GPIO_PIN_SET);
+}
+
+void resetPin(uint16_t GPIO_Pin)
+{
+	if (HAL_GPIO_ReadPin(GPIOD, GPIO_Pin) == GPIO_PIN_SET)
+		HAL_GPIO_WritePin(GPIOD, GPIO_Pin, GPIO_PIN_RESET);
+}
+
+void setAllPins()
+{
+	for (int i = 0; i < 4; i++)
+	{
+		setPin(roundPins[i]);
+	}
+}
+
+void resetAllPins()
+{
+	for (int i = 0; i < 4; i++)
+	{
+		resetPin(roundPins[i]);
+	}
+}
+
+// this function delays for customDelay time and checks whether it's time to stop blinking
+int delayAndCheck(int blinkingScheme)
+{
+	HAL_Delay(customDelay);
+	if (isOn != 1 || blinkingScheme != scheme)
+		return 1;
+	return 0;
+}
+
+
+// first blinking scheme
+void blink1()
+{
+	int round = 0;
+	while (1)
+	{
+		round -= 1;		// one pin back
+
+		if (round < 0)	// it's for not to exceed the array borders
+			round += 4;
+
+		resetPin(roundPins[round]);
+
+		round += 2;		// two pins forward
+
+		if (round > 3)	// it's for not to exceed the array borders
+			round -= 4;
+
+		setPin(roundPins[round]);
+
+		if (delayAndCheck(1))
+			break;
+	}
+	resetAllPins();		// for excessive safety
+}
+
+// second blinking scheme
+void blink2()
+{
+	while (1)	// I made second scheme as a linear algorithm
+	{
+		setPin(roundPins[1]);
+		setPin(roundPins[3]);
+
+		if (delayAndCheck(2))
+			break;
+
+		resetPin(roundPins[1]);
+		resetPin(roundPins[3]);
+
+		setPin(roundPins[0]);
+		setPin(roundPins[2]);
+
+		if (delayAndCheck(2))
+			break;
+
+		setPin(roundPins[1]);
+		setPin(roundPins[3]);
+
+		if (delayAndCheck(2))
+			break;
+
+		resetAllPins();
+
+		if (delayAndCheck(2))
+			break;
+	}
+	resetAllPins();		// for excessive safety
+
+}
+
+// third blinking scheme
+void blink3()
+{
+	int round;
+	while (1)
+	{
+		round = 0;
+
+		for (int i = 0; i < 2; i++)
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				setPin(roundPins[round]);	// set pin
+				if (delayAndCheck(3))
+					break;
+
+				resetPin(roundPins[round]);	// and reset it
+				if (delayAndCheck(3))
+					break;
+
+				round += 2;					// then take opposite and do the same
+
+				if (round > 3)	// it's for not to exceed the array borders
+					round -= 4;
+			}
+			if (isOn != 1 || scheme != 3)
+				break;
+
+			round += 1;						// then take another 2 pins and do the same
+
+			if (round > 3)		// it's for not to exceed the array borders
+				round -= 4;
+		}
+		if (isOn != 1 || scheme != 3)
+			break;
+
+		setAllPins();						// set all pins
+
+		if (delayAndCheck(3))
+			break;
+
+		resetAllPins();						// and reset all pins
+
+		if (delayAndCheck(3))
+			break;
+	}
+	resetAllPins();		// for excessive safety
+
+}
 
 /* USER CODE END 0 */
 
@@ -97,119 +247,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if (isOn == 1 && scheme == 1)
+	  if (isOn == 1)
 	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
-	  	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-	  	  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 1)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-	  	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-	  	  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 1)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
-	  	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-	  	  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 1)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-	  	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-	  	  HAL_Delay(customDelay);
-	  }
+		  if (scheme == 1)
+			  blink1();
 
+		  if (scheme == 2)
+			  blink2();
 
-	  if (isOn == 1 && scheme == 2)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-		  HAL_Delay(customDelay);
+		  if (scheme == 3)
+			  blink3();
 	  }
-	  if (isOn == 1 && scheme == 2)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 2)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 2)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-		  HAL_Delay(customDelay);
-	  }
-
-
-	  if (isOn == 1 && scheme == 3)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 3)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 3)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 3)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 3)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 3)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 3)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 3)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 3)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-		  HAL_Delay(customDelay);
-	  }
-	  if (isOn == 1 && scheme == 3)
-	  {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-		  HAL_Delay(customDelay);
-	  }
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -303,55 +351,52 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+// This function is executed each time button interruption happens
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN)
 {
-	if (GPIO_PIN == GPIO_PIN_15)
+	if (GPIO_PIN == GPIO_PIN_15)	// on/off scheme
 	{
 		if (isOn == 1)
 		{
 			isOn = 0;
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
+			resetAllPins();
 		}
 		else
 			isOn = 1;
 	}
-	if (GPIO_PIN == GPIO_PIN_6)
+	if (GPIO_PIN == GPIO_PIN_6)		// increase speed
 	{
 		if (customDelay < 1000)
 			customDelay *= 2;
 	}
-	if (GPIO_PIN == GPIO_PIN_8)
+	if (GPIO_PIN == GPIO_PIN_8)		// decrease speed
 	{
 		if (customDelay > 100)
 			customDelay /= 2;
 	}
-	if (GPIO_PIN == GPIO_PIN_9)
+	if (GPIO_PIN == GPIO_PIN_9)		// next scheme
 	{
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
 		if (scheme < 3)
+		{
 			scheme++;
+		}
 		else
+		{
 			scheme = 1;
-
+		}
+		resetAllPins();
 	}
-	if (GPIO_PIN == GPIO_PIN_11)
+	if (GPIO_PIN == GPIO_PIN_11)	// previous scheme
 	{
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
 		if (scheme > 1)
 		{
 			scheme--;
 		}
 		else
+		{
 			scheme = 3;
+		}
+		resetAllPins();
 	}
 }
 
