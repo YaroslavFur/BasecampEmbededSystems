@@ -62,7 +62,7 @@ const uint8_t dutyCycleChangePercent = 5;
 const uint16_t signalFrequencyChange = 5000;
 uint16_t globalDutyCycle = 80;
 
-void updateScheme(uint16_t value)
+void updateScheme(int value)
 {
 	switch(scheme)
 	{
@@ -85,16 +85,19 @@ void updateScheme(uint16_t value)
 
 void updateDutyCycle(int percent)
 {
-	uint16_t newDutyCycle = ((int)TIM4->CCR1) * percent / 100 + TIM4->CCR1;
-	if (newDutyCycle < TIM4->ARR && newDutyCycle)
+	int newDutyCycle = (globalDutyCycle) * percent / 100 + globalDutyCycle;
+	if (newDutyCycle < TIM4->ARR)
+	{
 		globalDutyCycle = newDutyCycle;
-	updateScheme(globalDutyCycle);
+		updateScheme(globalDutyCycle);
+	}
+
 }
 
 void updateSignalFrequency(int updateFrequencyValue)
 {
-	int8_t percentOfChange = updateFrequencyValue * 100 / ((int)(HSE_VALUE / TIM4->ARR));
-	uint16_t newPeriod = HSE_VALUE / (HSE_VALUE / TIM4->ARR + updateFrequencyValue);
+	int percentOfChange = updateFrequencyValue * 100 / ((int)(HSE_VALUE / TIM4->ARR));
+	int newPeriod = HSE_VALUE / (HSE_VALUE / TIM4->ARR + updateFrequencyValue);
 
 	if (newPeriod < HSE_VALUE && newPeriod > 0)
 	{
