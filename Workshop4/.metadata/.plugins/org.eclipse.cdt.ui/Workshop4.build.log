@@ -1,0 +1,20 @@
+21:37:55 **** Incremental Build of configuration Debug for project Workshop4 ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "Workshop4.elf" @"objects.list"   -mcpu=cortex-m4 -T"/home/yaroslav/STM32CubeIDE/Workshop4/Workshop4/STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Workshop4.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Workshop4.elf
+ 
+arm-none-eabi-size   Workshop4.elf 
+arm-none-eabi-objdump -h -S  Workshop4.elf  > "Workshop4.list"
+arm-none-eabi-objcopy  -O binary  Workshop4.elf  "Workshop4.bin"
+   text	   data	    bss	    dec	    hex	filename
+  14456	     20	   2172	  16648	   4108	Workshop4.elf
+Finished building: default.size.stdout
+ 
+Finished building: Workshop4.bin
+ 
+Finished building: Workshop4.list
+ 
+
+21:37:56 Build Finished. 0 errors, 0 warnings. (took 1s.292ms)
+
