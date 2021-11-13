@@ -1,0 +1,11 @@
+main.c:74:6:togglePinAndSendState	32	static
+main.c:104:6:sendCurrentTemp	64	static
+main.c:127:5:main	16	static
+main.c:206:6:SystemClock_Config	88	static
+main.c:246:13:MX_ADC1_Init	24	static
+main.c:296:13:MX_TIM4_Init	32	static
+main.c:341:13:MX_USART3_UART_Init	8	static
+main.c:374:13:MX_GPIO_Init	48	static
+main.c:417:6:HAL_GPIO_EXTI_Callback	16	static
+main.c:447:6:HAL_TIM_PeriodElapsedCallback	16	static
+main.c:463:6:Error_Handler	4	static,ignoring_inline_asm
