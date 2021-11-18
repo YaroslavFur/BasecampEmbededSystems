@@ -1,0 +1,11 @@
+pca9685.c:11:13:setRegister	24	static
+pca9685.c:17:13:readRegister	24	static
+pca9685.c:24:13:setPin	32	static
+pca9685.c:37:6:pcaInit	96	static
+pca9685.c:44:6:pcaEnableAllOutputs	96	static
+pca9685.c:50:6:pcaDisableAllOutputs	96	static
+pca9685.c:56:6:pcaIsSleeping	96	static
+pca9685.c:65:6:pcaEnableSleepMode	96	static
+pca9685.c:76:6:pcaDisableSleepMode	96	static
+pca9685.c:87:6:pcaSetFrequency	96	static
+pca9685.c:101:6:pcaSetDutyCycle	104	static

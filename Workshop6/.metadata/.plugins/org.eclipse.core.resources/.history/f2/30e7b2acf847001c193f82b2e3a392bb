@@ -1,0 +1,7 @@
+#pragma once
+
+#include "stm32f4xx_hal_conf.h";
+
+bool pcaInit(I2C_HandleTypeDef hi2c);
+
+bool pcaEnableAllOutputs(I2C_HandleTypeDef hi2c);
